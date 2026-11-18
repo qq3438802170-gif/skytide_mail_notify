@@ -1,0 +1,21 @@
+:root {
+  color-scheme: light dark;
+  font: 16px/1.5 system-ui, sans-serif;
+  --background: #f4f7fa;
+  --surface: #fff;
+  --text: #192837;
+  --border: #cbd7e3;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #101820;
+    --surface: #182430;
+    --text: #e5eef6;
+    --border: #405466;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--background); color: var(--text); }
+main { margin: auto; max-width: 40rem; padding: 1.25rem; }
+p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.card { padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 1rem; }
