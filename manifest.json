@@ -1,0 +1,441 @@
+{
+  "apiVersion": 1,
+  "id": "tidebot_mail_notify",
+  "name": "邮箱通知",
+  "version": "1.0.0",
+  "author": "yutan123",
+  "description": "将邮箱接收到的邮件获取后通知",
+  "entry": "main.js",
+  "icon": "icon.png",
+  "permissions": [
+    "storage",
+    "network",
+    "network.sockets",
+    "network.cleartext",
+    "credentials",
+    "workers",
+    "chat.read",
+    "chat.send",
+    "background.send",
+    "ai"
+  ],
+  "requiredCapabilities": [
+    "network.sockets",
+    "network.binary",
+    "network.endpoints",
+    "crypto",
+    "credentials",
+    "background.send",
+    "workers",
+    "commands",
+    "resources.read",
+    "config.ui",
+    "ui.web",
+    "ai"
+  ],
+  "networkEndpoints": [
+    "tls://imap.qq.com:993",
+    "tcp://imap.qq.com:143",
+    "tls://smtp.qq.com:465",
+    "tcp://smtp.qq.com:587",
+    "tls://imap.163.com:993",
+    "tcp://imap.163.com:143",
+    "tls://smtp.163.com:465",
+    "tcp://smtp.163.com:587",
+    "tls://imap.126.com:993",
+    "tcp://imap.126.com:143",
+    "tls://smtp.126.com:465",
+    "tcp://smtp.126.com:587",
+    "tls://imap.yeah.net:993",
+    "tcp://imap.yeah.net:143",
+    "tls://smtp.yeah.net:465",
+    "tcp://smtp.yeah.net:587",
+    "tls://imap.gmail.com:993",
+    "tcp://imap.gmail.com:143",
+    "tls://smtp.gmail.com:465",
+    "tcp://smtp.gmail.com:587",
+    "tls://outlook.office365.com:993",
+    "tcp://outlook.office365.com:143",
+    "tls://smtp.office365.com:465",
+    "tcp://smtp.office365.com:587",
+    "tls://imap.sina.com:993",
+    "tcp://imap.sina.com:143",
+    "tls://smtp.sina.com:465",
+    "tcp://smtp.sina.com:587",
+    "tls://imap.sina.cn:993",
+    "tcp://imap.sina.cn:143",
+    "tls://smtp.sina.cn:465",
+    "tcp://smtp.sina.cn:587",
+    "tls://imap.sohu.com:993",
+    "tcp://imap.sohu.com:143",
+    "tls://smtp.sohu.com:465",
+    "tcp://smtp.sohu.com:587",
+    "tls://imap.aliyun.com:993",
+    "tcp://imap.aliyun.com:143",
+    "tls://smtp.aliyun.com:465",
+    "tcp://smtp.aliyun.com:587",
+    "tls://imap.hdu.edu.cn:993",
+    "tcp://imap.hdu.edu.cn:143",
+    "tls://smtp.hdu.edu.cn:465",
+    "tcp://smtp.hdu.edu.cn:587",
+    "tls://imap.zju.edu.cn:993",
+    "tcp://imap.zju.edu.cn:143",
+    "tls://smtp.zju.edu.cn:465",
+    "tcp://smtp.zju.edu.cn:587",
+    "tls://imap.mail.yahoo.com:993",
+    "tcp://imap.mail.yahoo.com:143",
+    "tls://smtp.mail.yahoo.com:465",
+    "tcp://smtp.mail.yahoo.com:587",
+    "tls://imap.mail.me.com:993",
+    "tcp://imap.mail.me.com:143",
+    "tls://smtp.mail.me.com:465",
+    "tcp://smtp.mail.me.com:587"
+  ],
+  "resources": [
+    "package.json",
+    "charsets.json",
+    "timezones.json"
+  ],
+  "workers": [
+    {
+      "name": "poll_mail",
+      "intervalMs": 10000
+    }
+  ],
+  "commands": [
+    "mail_bind",
+    "mail_check",
+    "mail_status",
+    "mail_query",
+    "mail_reply"
+  ],
+  "config": {
+    "type": "object",
+    "properties": {
+      "primary_mail_enabled": {
+        "type": "boolean",
+        "title": "启用设置中的邮箱账户",
+        "default": false,
+        "x-ui": {
+          "group": "邮箱账户"
+        }
+      },
+      "primary_mail_name": {
+        "type": "string",
+        "title": "邮箱备注名",
+        "default": "主邮箱",
+        "x-ui": {
+          "group": "邮箱账户",
+          "visibleWhen": {
+            "primary_mail_enabled": true
+          }
+        },
+        "maxLength": 80
+      },
+      "primary_mail_address": {
+        "type": "string",
+        "title": "邮箱地址",
+        "default": "",
+        "x-ui": {
+          "group": "邮箱账户",
+          "visibleWhen": {
+            "primary_mail_enabled": true
+          }
+        },
+        "maxLength": 254
+      },
+      "primary_mail_password": {
+        "type": "string",
+        "title": "IMAP 授权码或密码",
+        "default": "",
+        "x-ui": {
+          "group": "邮箱账户",
+          "visibleWhen": {
+            "primary_mail_enabled": true
+          }
+        },
+        "format": "password",
+        "maxLength": 1024
+      },
+      "primary_imap_host": {
+        "type": "string",
+        "title": "IMAP 服务器",
+        "default": "imap.qq.com",
+        "x-ui": {
+          "group": "邮箱账户",
+          "visibleWhen": {
+            "primary_mail_enabled": true
+          }
+        },
+        "maxLength": 253
+      },
+      "primary_imap_port": {
+        "type": "integer",
+        "title": "IMAP 端口",
+        "default": 993,
+        "minimum": 1,
+        "maximum": 65535,
+        "x-ui": {
+          "group": "邮箱账户",
+          "visibleWhen": {
+            "primary_mail_enabled": true
+          }
+        }
+      },
+      "primary_imap_tls": {
+        "type": "boolean",
+        "title": "IMAP 使用直接 TLS（关闭后使用 STARTTLS）",
+        "default": true,
+        "x-ui": {
+          "group": "邮箱账户",
+          "visibleWhen": {
+            "primary_mail_enabled": true
+          }
+        }
+      },
+      "primary_smtp_enabled": {
+        "type": "boolean",
+        "title": "配置 SMTP 发信",
+        "default": false,
+        "x-ui": {
+          "group": "邮箱账户",
+          "visibleWhen": {
+            "primary_mail_enabled": true
+          }
+        }
+      },
+      "primary_smtp_host": {
+        "type": "string",
+        "title": "SMTP 服务器",
+        "default": "smtp.qq.com",
+        "x-ui": {
+          "group": "邮箱账户",
+          "visibleWhen": {
+            "primary_mail_enabled": true,
+            "primary_smtp_enabled": true
+          }
+        },
+        "maxLength": 253
+      },
+      "primary_smtp_port": {
+        "type": "integer",
+        "title": "SMTP 端口",
+        "default": 465,
+        "minimum": 1,
+        "maximum": 65535,
+        "x-ui": {
+          "group": "邮箱账户",
+          "visibleWhen": {
+            "primary_mail_enabled": true,
+            "primary_smtp_enabled": true
+          }
+        }
+      },
+      "primary_smtp_tls": {
+        "type": "boolean",
+        "title": "SMTP 使用直接 TLS（关闭后使用 STARTTLS）",
+        "default": true,
+        "x-ui": {
+          "group": "邮箱账户",
+          "visibleWhen": {
+            "primary_mail_enabled": true,
+            "primary_smtp_enabled": true
+          }
+        }
+      },
+      "primary_smtp_password": {
+        "type": "string",
+        "title": "SMTP 独立授权码（留空复用 IMAP）",
+        "default": "",
+        "x-ui": {
+          "group": "邮箱账户",
+          "visibleWhen": {
+            "primary_mail_enabled": true,
+            "primary_smtp_enabled": true
+          }
+        },
+        "format": "password",
+        "maxLength": 1024
+      },
+      "notify_bot_id": {
+        "type": "string",
+        "title": "通知机器人",
+        "x-ui": {
+          "group": "通知与命令",
+          "widget": "bot"
+        }
+      },
+      "command_bots": {
+        "type": "array",
+        "title": "允许使用邮箱命令的机器人",
+        "items": {
+          "type": "string"
+        },
+        "x-ui": {
+          "group": "通知与命令",
+          "widget": "bot"
+        }
+      },
+      "check_interval": {
+        "type": "integer",
+        "title": "自动检查间隔",
+        "default": 5,
+        "minimum": 1,
+        "maximum": 1440,
+        "x-ui": {
+          "group": "通知与命令",
+          "unit": "分钟"
+        }
+      },
+      "max_body_length": {
+        "type": "integer",
+        "title": "正文预览上限",
+        "default": 500,
+        "minimum": 1,
+        "maximum": 10000,
+        "x-ui": {
+          "group": "显示",
+          "unit": "字符"
+        }
+      },
+      "filter_body_length": {
+        "type": "integer",
+        "title": "正文过滤读取上限",
+        "default": 3000,
+        "minimum": 1,
+        "maximum": 50000,
+        "x-ui": {
+          "group": "显示",
+          "unit": "字符"
+        }
+      },
+      "display_timezone": {
+        "type": "string",
+        "title": "通知显示时区",
+        "default": "Asia/Shanghai",
+        "x-ui": {
+          "group": "显示",
+          "widget": "timezone"
+        }
+      },
+      "enable_blacklist": {
+        "type": "boolean",
+        "title": "启用黑名单",
+        "default": false
+      },
+      "sender_blacklist": {
+        "type": "string",
+        "title": "黑名单：发件人（完整邮箱、@域名或关键词）；多条以英文分号或换行分隔",
+        "default": ""
+      },
+      "subject_blacklist": {
+        "type": "string",
+        "title": "黑名单：主题关键词；多条以英文分号或换行分隔",
+        "default": ""
+      },
+      "body_blacklist": {
+        "type": "string",
+        "title": "黑名单：正文关键词；多条以英文分号或换行分隔",
+        "default": ""
+      },
+      "enable_whitelist": {
+        "type": "boolean",
+        "title": "启用白名单",
+        "default": false
+      },
+      "sender_whitelist": {
+        "type": "string",
+        "title": "白名单：发件人（完整邮箱、@域名或关键词）；多条以英文分号或换行分隔",
+        "default": ""
+      },
+      "subject_whitelist": {
+        "type": "string",
+        "title": "白名单：主题关键词；多条以英文分号或换行分隔",
+        "default": ""
+      },
+      "body_whitelist": {
+        "type": "string",
+        "title": "白名单：正文关键词；多条以英文分号或换行分隔",
+        "default": ""
+      },
+      "ai_summary": {
+        "type": "boolean",
+        "title": "启用 AI 摘要",
+        "default": false,
+        "x-ui": {
+          "group": "AI 摘要"
+        }
+      },
+      "ai_provider_id": {
+        "type": "string",
+        "title": "摘要模型提供商",
+        "x-ui": {
+          "group": "AI 摘要",
+          "widget": "provider",
+          "providerTypes": [
+            "chat"
+          ],
+          "visibleWhen": {
+            "ai_summary": true
+          }
+        }
+      }
+    },
+    "additionalProperties": true,
+    "required": [
+      "primary_mail_address",
+      "primary_mail_password",
+      "ai_provider_id"
+    ],
+    "x-ui": {
+      "testAction": "test_mail_connection",
+      "testLabel": "测试主邮箱 IMAP 连接"
+    }
+  },
+  "ui": {
+    "type": "web",
+    "entry": "web/index.html"
+  },
+  "tools": [
+    {
+      "name": "send_email",
+      "description": "仅在用户明确要求发信且收件人、主题和正文已明确时，使用已配置邮箱发送纯文本邮件。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 254,
+            "description": "单个收件人邮箱地址"
+          },
+          "subject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "邮件主题"
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000,
+            "description": "纯文本正文"
+          },
+          "requestId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "本次发送的唯一标识，重试复用"
+          }
+        },
+        "required": [
+          "to",
+          "subject",
+          "body",
+          "requestId"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}
