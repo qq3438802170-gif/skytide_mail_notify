@@ -1,4 +1,4 @@
-/* 邮箱通知：仅依赖 TideBot SDK，不使用 Node 或浏览器 API。 */
+/* 邮箱通知：仅依赖 SkyTide SDK，不使用 Node 或浏览器 API。 */
 'use strict';
 const Mail = (() => {
   const cfg = tide.config;
@@ -228,7 +228,7 @@ const Mail = (() => {
         await w.imap('STARTTLS'); await w.tls();
       }
       if (!/^\* PREAUTH\b/i.test(hello)) await w.imap('LOGIN ' + quote(a.email) + ' ' + quote(await secret(a,false,values)));
-      if (/@(?:163|126)\.com$/i.test(a.email)) { try { await w.imap('ID ("name" "TideBot-MailNotify" "version" "1.0.0" "vendor" "TideBot")'); } catch (_) {} }
+      if (/@(?:163|126)\.com$/i.test(a.email)) { try { await w.imap('ID ("name" "SkyTide-MailNotify" "version" "1.0.0" "vendor" "SkyTide")'); } catch (_) {} }
       let result;
       try { result = await w.imap('EXAMINE INBOX'); } catch (_) { result = await w.imap('SELECT INBOX'); }
       const joined = result.lines.join('\n'), validity = /\[UIDVALIDITY\s+(\d+)\]/i.exec(joined);
@@ -376,15 +376,15 @@ const Mail = (() => {
     const {connectionId}=await tide.connections.connect({url:endpoint(a,true)}),w=new Wire(connectionId);
     let accepted=false, submitted=false;
     try {
-      await w.smtp(null,[220]); let caps=await w.smtp('EHLO tidebot.local',[250]);
-      if(a.smtp_use_ssl===false){if(!caps.some(x=>/STARTTLS/i.test(x)))throw Error('SMTP 服务未提供 STARTTLS');await w.smtp('STARTTLS',[220]);await w.tls();caps=await w.smtp('EHLO tidebot.local',[250]);}
+      await w.smtp(null,[220]); let caps=await w.smtp('EHLO skytide.local',[250]);
+      if(a.smtp_use_ssl===false){if(!caps.some(x=>/STARTTLS/i.test(x)))throw Error('SMTP 服务未提供 STARTTLS');await w.smtp('STARTTLS',[220]);await w.tls();caps=await w.smtp('EHLO skytide.local',[250]);}
       const password=await secret(a,true); quote(password);
       if(caps.some(x=>/AUTH.*\bPLAIN\b/i.test(x))) await w.smtp('AUTH PLAIN '+base64(utf8('\0'+a.email+'\0'+password)),[235]);
       else {await w.smtp('AUTH LOGIN',[334]);await w.smtp(base64(utf8(a.email)),[334]);await w.smtp(base64(utf8(password)),[235]);}
       await w.smtp('MAIL FROM:<'+a.email+'>',[250]); await w.smtp('RCPT TO:<'+to+'>',[250,251]);await w.smtp('DATA',[354]);
       const encoded=base64(utf8(body)).match(/.{1,76}/g).join('\r\n');
       const encodedSubject=Array.from(subject).reduce((chunks,c)=>{if(!chunks.length||utf8(chunks[chunks.length-1]+c).length>42)chunks.push(c);else chunks[chunks.length-1]+=c;return chunks;},[]).map(s=>'=?UTF-8?B?'+base64(utf8(s))+'?=').join('\r\n ');
-      const message='From: <'+a.email+'>\r\nTo: <'+to+'>\r\nSubject: '+encodedSubject+'\r\nDate: '+new Date().toUTCString()+'\r\nMessage-ID: <'+Date.now()+'.'+(await tide.crypto.random(12)).replace(/[^a-z0-9]/gi,'')+'@tidebot.local>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+encoded+'\r\n.\r\n';
+      const message='From: <'+a.email+'>\r\nTo: <'+to+'>\r\nSubject: '+encodedSubject+'\r\nDate: '+new Date().toUTCString()+'\r\nMessage-ID: <'+Date.now()+'.'+(await tide.crypto.random(12)).replace(/[^a-z0-9]/gi,'')+'@skytide.local>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n'+encoded+'\r\n.\r\n';
       if (beforeSubmit) await beforeSubmit();
       submitted=true;await w.write(message);await w.smtp(null,[250]);accepted=true;
       try{await w.smtp('QUIT',[221]);}catch(_){}

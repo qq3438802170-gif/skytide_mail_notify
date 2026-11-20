@@ -1,6 +1,6 @@
 {
   "apiVersion": 1,
-  "id": "tidebot_mail_notify",
+  "id": "skytide_mail_notify",
   "name": "邮箱通知",
   "version": "1.0.0",
   "author": "yutan123",
